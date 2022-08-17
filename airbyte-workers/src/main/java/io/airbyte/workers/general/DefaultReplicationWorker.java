@@ -310,7 +310,7 @@ public class DefaultReplicationWorker implements ReplicationWorker {
                                                  final WorkerMetricReporter metricReporter) {
     return () -> {
       MDC.setContextMap(mdc);
-      LOGGER.info("Replication thread started.");
+      LOGGER.info("Replication thread started.");      
       var recordsRead = 0;
       final Map<String, ImmutablePair<Set<String>, Integer>> validationErrors = new HashMap<>();
       try {
@@ -320,8 +320,7 @@ public class DefaultReplicationWorker implements ReplicationWorker {
             messageOptional = source.attemptRead();
           } catch (final Exception e) {
             throw new SourceException("Source process read attempt failed", e);
-          }
-
+          }          
           if (messageOptional.isPresent()) {
             final AirbyteMessage airbyteMessage = messageOptional.get();
             validateSchema(recordSchemaValidator, validationErrors, airbyteMessage);
