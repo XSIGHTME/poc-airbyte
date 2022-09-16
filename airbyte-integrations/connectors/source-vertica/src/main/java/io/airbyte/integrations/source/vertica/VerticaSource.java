@@ -4,57 +4,58 @@
 
 package io.airbyte.integrations.source.vertica;
 
-import static io.airbyte.integrations.debezium.AirbyteDebeziumHandler.shouldUseCDC;
-import static io.airbyte.integrations.debezium.internals.DebeziumEventUtils.CDC_DELETED_AT;
-import static io.airbyte.integrations.debezium.internals.DebeziumEventUtils.CDC_UPDATED_AT;
-import static java.util.stream.Collectors.toList;
-
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.microsoft.sqlserver.jdbc.SQLServerResultSetMetaData;
 import io.airbyte.commons.functional.CheckedConsumer;
+import io.airbyte.commons.json.Jsons;
 import io.airbyte.commons.util.AutoCloseableIterator;
 import io.airbyte.commons.util.AutoCloseableIterators;
-import io.airbyte.integrations.base.ssh.SshWrappedSource;
-import io.airbyte.integrations.debezium.AirbyteDebeziumHandler;
-import io.airbyte.integrations.source.vertica.VerticaCdcHelper.SnapshotIsolation;
-import io.airbyte.integrations.source.relationaldb.state.StateManager;
-import io.airbyte.protocol.models.AirbyteCatalog;
-import io.airbyte.protocol.models.AirbyteMessage;
-import io.airbyte.protocol.models.AirbyteStream;
-import io.airbyte.protocol.models.ConfiguredAirbyteCatalog;
-import io.airbyte.protocol.models.SyncMode;
-import java.io.File;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.time.Instant;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.stream.Stream;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.ImmutableMap;
-import io.airbyte.commons.json.Jsons;
 import io.airbyte.db.factory.DatabaseDriver;
 import io.airbyte.db.jdbc.JdbcDatabase;
 import io.airbyte.db.jdbc.JdbcUtils;
 import io.airbyte.db.jdbc.streaming.AdaptiveStreamingQueryConfig;
+import io.airbyte.integrations.VerticaCdcConnectorMetadataInjector;
+import io.airbyte.integrations.VerticaCdcHelper;
+import io.airbyte.integrations.VerticaCdcSavedInfoFetcher;
+import io.airbyte.integrations.VerticaCdcStateHandler;
+import io.airbyte.integrations.VerticaCdcTargetPosition;
 import io.airbyte.integrations.base.IntegrationRunner;
 import io.airbyte.integrations.base.Source;
+import io.airbyte.integrations.debezium.AirbyteDebeziumHandler;
 import io.airbyte.integrations.source.jdbc.AbstractJdbcSource;
 import io.airbyte.integrations.source.jdbc.dto.JdbcPrivilegeDto;
 import io.airbyte.integrations.source.relationaldb.TableInfo;
+import io.airbyte.integrations.source.relationaldb.state.StateManager;
+import io.airbyte.protocol.models.AirbyteCatalog;
+import io.airbyte.protocol.models.AirbyteMessage;
+import io.airbyte.protocol.models.AirbyteStream;
 import io.airbyte.protocol.models.CommonField;
+import io.airbyte.protocol.models.ConfiguredAirbyteCatalog;
+import io.airbyte.protocol.models.SyncMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.JDBCType;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.stream.Stream;
+
+import static io.airbyte.integrations.debezium.AirbyteDebeziumHandler.shouldUseCDC;
+import static io.airbyte.integrations.debezium.internals.DebeziumEventUtils.CDC_DELETED_AT;
+import static io.airbyte.integrations.debezium.internals.DebeziumEventUtils.CDC_UPDATED_AT;
+import static java.util.stream.Collectors.toList;
 
 public class VerticaSource extends AbstractJdbcSource<JDBCType> implements Source {
 
@@ -295,7 +296,7 @@ public class VerticaSource extends AbstractJdbcSource<JDBCType> implements Sourc
 
   protected void assertSnapshotIsolationAllowed(final JsonNode config, final JdbcDatabase database)
       throws SQLException {
-    if (VerticaCdcHelper.getSnapshotIsolationConfig(config) != SnapshotIsolation.SNAPSHOT) {
+    if (VerticaCdcHelper.getSnapshotIsolationConfig(config) != VerticaCdcHelper.SnapshotIsolation.SNAPSHOT) {
       return;
     }
 

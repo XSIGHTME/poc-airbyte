@@ -2,7 +2,7 @@
  * Copyright (c) 2022 Airbyte, Inc., all rights reserved.
  */
 
-package io.airbyte.integrations.source.vertica;
+package io.airbyte.integrations;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Preconditions;

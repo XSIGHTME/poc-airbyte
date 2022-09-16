@@ -2,7 +2,7 @@
  * Copyright (c) 2022 Airbyte, Inc., all rights reserved.
  */
 
-package io.airbyte.integrations.source.vertica;
+package io.airbyte.integrations;
 
 import static io.airbyte.db.jdbc.JdbcConstants.INTERNAL_COLUMN_NAME;
 import static io.airbyte.db.jdbc.JdbcConstants.INTERNAL_COLUMN_TYPE;

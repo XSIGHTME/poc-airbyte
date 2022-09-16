@@ -2,7 +2,7 @@
  * Copyright (c) 2022 Airbyte, Inc., all rights reserved.
  */
 
-package io.airbyte.integrations.source.vertica;
+package io.airbyte.integrations;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.debezium.annotation.VisibleForTesting;
@@ -89,7 +89,7 @@ public class VerticaCdcHelper {
   }
 
   @VisibleForTesting
-  static boolean isCdc(final JsonNode config) {
+  public static boolean isCdc(final JsonNode config) {
     // new replication method config since version 0.4.0
     if (config.hasNonNull(REPLICATION_FIELD)) {
       final JsonNode replicationConfig = config.get(REPLICATION_FIELD);
@@ -103,7 +103,7 @@ public class VerticaCdcHelper {
   }
 
   @VisibleForTesting
-  static SnapshotIsolation getSnapshotIsolationConfig(final JsonNode config) {
+  public static SnapshotIsolation getSnapshotIsolationConfig(final JsonNode config) {
     // new replication method config since version 0.4.0
     if (config.hasNonNull(REPLICATION_FIELD)) {
       final JsonNode replicationConfig = config.get(REPLICATION_FIELD);
@@ -125,7 +125,7 @@ public class VerticaCdcHelper {
   }
 
   @VisibleForTesting
-  static Properties getDebeziumProperties(final JsonNode config) {
+  public static Properties getDebeziumProperties(final JsonNode config) {
     final Properties props = new Properties();
     props.setProperty("connector.class", "io.debezium.connector.sqlserver.SqlServerConnector");
 

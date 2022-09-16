@@ -2,7 +2,7 @@
  * Copyright (c) 2022 Airbyte, Inc., all rights reserved.
  */
 
-package io.airbyte.integrations.source.vertica;
+package io.airbyte.integrations;
 
 import static io.airbyte.integrations.source.vertica.VerticaSource.VERTICA_CDC_OFFSET;
 import static io.airbyte.integrations.source.vertica.VerticaSource.VERTICA_DB_HISTORY;
